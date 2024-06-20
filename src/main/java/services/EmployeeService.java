@@ -9,7 +9,7 @@ import actions.views.EmployeeConverter;
 import actions.views.EmployeeView;
 import constants.JpaConst;
 import models.Employee;
-import models.EmployeeValidator;
+import models.validators.EmployeeValidator;
 import utils.EncryptUtil;
 
 
