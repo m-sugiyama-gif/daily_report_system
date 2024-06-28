@@ -2,6 +2,8 @@ package actions;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -97,6 +99,23 @@ public class ReportAction extends ActionBase {
             } else {
                 day = LocalDate.parse(getRequestParam(AttributeConst.REP_DATE));
             }
+            //出勤の時間が入力されていなければ、今日の日付を設定
+            LocalDateTime attendanceAtworkTime = null;
+            if (getRequestParam(AttributeConst.REP_ATTENDANCEATWORK) == null
+                    || getRequestParam(AttributeConst.REP_ATTENDANCEATWORK).equals("")) {
+                attendanceAtworkTime = LocalDateTime.now();
+            } else {
+                attendanceAtworkTime = LocalDateTime.parse(getRequestParam(AttributeConst.REP_ATTENDANCEATWORK));
+            }
+
+            //退勤の時間が入力されていなければ、今日の日付を設定
+            LocalDateTime leavingWorkTime = null;
+            if (getRequestParam(AttributeConst.REP_LEAVINGWORK) == null
+                    || getRequestParam(AttributeConst.REP_LEAVINGWORK).equals("")) {
+                leavingWorkTime = LocalDateTime.now();
+            } else {
+                leavingWorkTime = LocalDateTime.parse(getRequestParam(AttributeConst.REP_LEAVINGWORK));
+            }
 
             //セッションからログイン中の従業員情報を取得
             EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
@@ -107,13 +126,26 @@ public class ReportAction extends ActionBase {
                     ev, //ログインしている従業員を、日報作成者として登録する
                     day,
                     getRequestParam(AttributeConst.REP_TITLE),
+                    attendanceAtworkTime,
+                    leavingWorkTime,
                     getRequestParam(AttributeConst.REP_CONTENT),
                     null,
                     null);
 
-            //日報情報登録
-            List<String> errors = service.create(rv);
 
+            List<String> errors = new ArrayList<String>();
+            //既に登録されている日付かどうかのチェック
+            List<ReportView> reports = service.getReportParId(ev);
+            for (ReportView report : reports) {
+                if (day.equals(report.getReportDate())) {
+                    errors.add("既に登録されている日付です。");
+                }
+            }
+
+
+            //日報情報登録
+            //List<String> errors = service.create(rv);
+            errors = (service.create(rv, errors));
             if (errors.size() > 0) {
                 //登録中にエラーがあった場合
 
@@ -199,15 +231,30 @@ public class ReportAction extends ActionBase {
         if (checkToken()) {
 
             //idを条件に日報データを取得する
+            EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+
             ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
 
             //入力された日報内容を設定する
             rv.setReportDate(toLocalDate(getRequestParam(AttributeConst.REP_DATE)));
             rv.setTitle(getRequestParam(AttributeConst.REP_TITLE));
+            rv.setAttendanceAtwork(LocalDateTime.parse(getRequestParam(AttributeConst.REP_ATTENDANCEATWORK)));
+            rv.setLeavingWork(LocalDateTime.parse(getRequestParam(AttributeConst.REP_LEAVINGWORK)));
             rv.setContent(getRequestParam(AttributeConst.REP_CONTENT));
 
+
+            List<String> errors = new ArrayList<String>();
+            //既に登録されている日付かどうかのチェック
+            List<ReportView> reports = service.getReportParId(ev);
+            for (ReportView report : reports) {
+                if (toLocalDate(getRequestParam(AttributeConst.REP_DATE)).equals(report.getReportDate())
+                        && !Integer.valueOf(getRequestParam(AttributeConst.REP_ID)).equals(report.getId())) {
+                    errors.add("既に登録されている日付です。");
+                }
+            }
+
             //日報データを更新する
-            List<String> errors = service.update(rv);
+            errors = (service.update(rv, errors));
 
             if (errors.size() > 0) {
                 //更新中にエラーが発生した場合

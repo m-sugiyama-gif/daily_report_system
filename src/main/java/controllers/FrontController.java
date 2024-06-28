@@ -13,7 +13,7 @@ import actions.ActionBase;
 import actions.UnknownAction;
 import constants.ForwardConst;
 
-@WebServlet( "/" )
+@WebServlet("/")
 public class FrontController extends HttpServlet {
     private static final long serialVersionUID = 1L;
 

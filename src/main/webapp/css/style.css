@@ -135,26 +135,37 @@ select {
 h1 a {
     color: #eeeeee;
 }
+
 table#report_list th {
     font-weight: bold;
     padding: 10px 2%;
 }
 
 table#report_list .report_name {
-    width: 20%;
+    width: 16%;
     padding: 10px 2%;
 }
+
 table#report_list .report_date {
-    width: 20%;
+    width: 16%;
 }
 
 table#report_list .report_title {
-    width: 37%;
+    width: 20%;
+}
+
+table#report_list .report_attendanceAtwork {
+    width: 16%;
+}
+
+table#report_list .report_leavingWork {
+    width: 16%;
 }
 
 table#report_list .report_action {
-    width: 13%;
+    width: 16%;
 }
+
 h3 {
     font-size: larger;
 }

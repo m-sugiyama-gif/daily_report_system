@@ -33,6 +33,14 @@ public class ReportView {
      */
     private String title;
 
+    /**出勤日←追加*/
+    private LocalDateTime attendanceAtwork;
+
+
+    /**退勤日←追加*/
+    private LocalDateTime leavingWork;
+
+
     /**
      * 日報の内容
      */
